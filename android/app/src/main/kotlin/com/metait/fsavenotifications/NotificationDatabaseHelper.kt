@@ -60,6 +60,54 @@ class NotificationDatabaseHelper private constructor(context: Context) :
     }
 
     @Synchronized
+    fun isNotificationAlreadySaved(
+        key: String,
+        packageName: String,
+        title: String,
+        text: String,
+        postTime: Long
+    ): Boolean {
+        val db = readableDatabase
+
+        // 1. Tarkistetaan suoraan avaimella (notification_key), riippumatta onko lukematon vai luettu
+        if (key.isNotBlank()) {
+            val cursor = db.query(
+                TABLE_NAME,
+                arrayOf(COLUMN_ID),
+                "$COLUMN_KEY = ?",
+                arrayOf(key),
+                null,
+                null,
+                null
+            )
+            cursor.use {
+                if (it.moveToFirst()) return true
+            }
+        }
+
+        // 2. Tarkistetaan samansisältöinen viesti samalta sovellukselta (sama otsikko, teksti ja aikaleima +-3s)
+        if (packageName.isNotBlank()) {
+            val timeMargin = 3000L
+            val minTime = postTime - timeMargin
+            val maxTime = postTime + timeMargin
+            val cursor = db.query(
+                TABLE_NAME,
+                arrayOf(COLUMN_ID),
+                "$COLUMN_PACKAGE_NAME = ? AND $COLUMN_TITLE = ? AND $COLUMN_TEXT = ? AND $COLUMN_POST_TIME BETWEEN ? AND ?",
+                arrayOf(packageName, title, text, minTime.toString(), maxTime.toString()),
+                null,
+                null,
+                null
+            )
+            cursor.use {
+                if (it.moveToFirst()) return true
+            }
+        }
+
+        return false
+    }
+
+    @Synchronized
     fun insertNotification(
         key: String,
         packageName: String,

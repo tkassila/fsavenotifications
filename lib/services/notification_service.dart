@@ -257,4 +257,39 @@ class NotificationService {
       return 0;
     }
   }
+
+  /// Tuo laitteen ilmoituspalkissa tällä hetkellä olevat aktiiviset ilmoitukset
+  /// ja tallentaa ne, mikäli niitä ei ole jo aiemmin tallennettu tietokantaan.
+  Future<Map<String, dynamic>> importActiveNotifications() async {
+    try {
+      final Map<dynamic, dynamic>? res =
+          await _channel.invokeMethod('importActiveNotifications');
+      if (res == null) {
+        return {
+          'imported': 0,
+          'skipped': 0,
+          'total': 0,
+          'permissionGranted': false,
+          'connected': false,
+        };
+      }
+      return {
+        'imported': (res['imported'] as num?)?.toInt() ?? 0,
+        'skipped': (res['skipped'] as num?)?.toInt() ?? 0,
+        'total': (res['total'] as num?)?.toInt() ?? 0,
+        'permissionGranted': res['permissionGranted'] == true,
+        'connected': res['connected'] == true,
+      };
+    } on PlatformException catch (e) {
+      // ignore: avoid_print
+      print('Virhe tuotaessa aktiivisia ilmoituksia: ${e.message}');
+      return {
+        'imported': 0,
+        'skipped': 0,
+        'total': 0,
+        'permissionGranted': false,
+        'connected': false,
+      };
+    }
+  }
 }

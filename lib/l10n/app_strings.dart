@@ -748,13 +748,13 @@ class AppStrings {
   String get guideDialogTitle {
     switch (lang) {
       case AppLanguage.sv:
-        return 'Batterispar och bakgrundsanvändning';
+        return 'Användarmanual & bakgrundsanvändning';
       case AppLanguage.de:
-        return 'Energiesparen & Hintergrundnutzung';
+        return 'Bedienungsanleitung & Hintergrundnutzung';
       case AppLanguage.en:
-        return 'Battery Saving & Background Usage';
+        return 'User Guide & Background Settings';
       case AppLanguage.fi:
-        return 'Akun säästö ja taustakäyttö';
+        return 'Käyttöohje ja tausta-asetukset';
     }
   }
 
@@ -850,16 +850,62 @@ class AppStrings {
     }
   }
 
+  String get guideSecImportTitle {
+    switch (lang) {
+      case AppLanguage.sv:
+        return '3. Hämta befintliga aviseringar & uppdateringar:';
+      case AppLanguage.de:
+        return '3. Vorhandene Benachrichtigungen abrufen & Updates:';
+      case AppLanguage.en:
+        return '3. Fetching existing notifications & app updates:';
+      case AppLanguage.fi:
+        return '3. Olemassa olevien ilmoitusten haku ja päivitykset:';
+    }
+  }
+
+  String get guideSecImportContent {
+    switch (lang) {
+      case AppLanguage.sv:
+        return '• Hämta aviseringar från statusfältet:\n'
+            'Du kan när som helst trycka på nedladdningsikonen i övre fältet eller välja "Hämta aktiva aviseringar från enheten" i verktygsdialogen. Appen hämtar alla aviseringar som finns aktiva i telefonens aviseringsfält och lägger till dem som olästa.\n\n'
+            '• Automatiskt skydd mot dubbletter:\n'
+            'Appen kontrollerar varje avisering mot databasen. Redan sparade meddelanden (olästa eller i historiken) hoppas över automatiskt och dupliceras aldrig.\n\n'
+            '• Uppdateringar och omstarter:\n'
+            'När appen uppdateras via .apk eller Google Play Store, eller när telefonen startas om, förblir alla behörigheter och meddelanden i SQLite-databasen sparade. Tjänsten återansluter automatiskt när appen öppnas.';
+      case AppLanguage.de:
+        return '• Benachrichtigungen aus der Statusleiste importieren:\n'
+            'Sie können jederzeit auf das Download-Symbol in der oberen Leiste oder im Werkzeugmenü auf "Aktive Gerätebenachrichtigungen abrufen" tippen. Die App liest alle aktuell in der Statusleiste aktiven Benachrichtigungen aus und fügt neue zum Posteingang hinzu.\n\n'
+            '• Automatische Duplikatsvermeidung:\n'
+            'Die App gleicht jede Benachrichtigung mit der Datenbank ab. Bereits gespeicherte Nachrichten (ungelesen oder im Verlauf) werden automatisch übersprungen und niemals doppelt gespeichert.\n\n'
+            '• Updates und Geräteneustarts:\n'
+            'Beim Aktualisieren der App (.apk oder Play Store) sowie nach einem Neustart des Smartphones bleiben alle Berechtigungen und Datenbankeinträge vollständig erhalten. Der Hintergrunddienst wird beim Öffnen der App automatisch wieder verbunden.';
+      case AppLanguage.en:
+        return '• Import notifications from status bar:\n'
+            'You can tap the download icon in the top app bar or choose "Import active notifications from device" in the tools menu at any time. The app reads all notifications currently sitting in the device notification shade and imports new ones.\n\n'
+            '• Automatic duplicate prevention:\n'
+            'The app checks each notification against the local database. Any notification that has already been saved (whether unread or in history) is automatically skipped and never duplicated.\n\n'
+            '• Updates and device reboots:\n'
+            'When updating the app via .apk or Google Play Store, or after rebooting the phone, all permissions and saved SQLite records are preserved. The background service automatically reconnects as soon as the app is opened.';
+      case AppLanguage.fi:
+        return '• Ilmoitusten tuonti ilmoituspalkista:\n'
+            'Voit milloin vain painaa yläpalkin latauskuvaketta tai työkalujen "Hae laitteen aktiiviset ilmoitukset" -painiketta. Sovellus lukee kaikki puhelimen ilmoitusvalikossa sillä hetkellä odottavat ilmoitukset ja lisää uudet lukemattomiin.\n\n'
+            '• Automaattinen duplikaattien esto:\n'
+            'Sovellus tarkistaa jokaisen ilmoituksen uniikin avaimen, pakettitunnuksen ja sisällön tietokannasta. Jo aiemmin tallennetut viestit (sekä lukemattomat että luetut historiaviestit) ohitetaan automaattisesti, joten samoja viestejä ei koskaan tallenneta kahta kertaa.\n\n'
+            '• Päivitykset ja uudelleenkäynnistys:\n'
+            'Kun sovellus päivitetään .apk-tiedostolla tai Play Kaupasta, tai kun puhelin käynnistetään uudelleen, kaikki aiemmin myönnetyt oikeudet ja SQLite-tietokanta säilyvät ennallaan. Taustapalvelu kytkeytyy automaattisesti takaisin päälle sovelluksen käynnistyessä.';
+    }
+  }
+
   String get guideSec3Title {
     switch (lang) {
       case AppLanguage.sv:
-        return '3. Enhetsspecifika inställningar i telefonen (Viktigt!):';
+        return '4. Enhetsspecifika inställningar i telefonen (Viktigt!):';
       case AppLanguage.de:
-        return '3. Gerätespezifische Einstellungen auf dem Smartphone (Wichtig!):';
+        return '4. Gerätespezifische Einstellungen auf dem Smartphone (Wichtig!):';
       case AppLanguage.en:
-        return '3. Manufacturer-specific device settings (Important!):';
+        return '4. Manufacturer-specific device settings (Important!):';
       case AppLanguage.fi:
-        return '3. Laitevalmistajakohtaiset asetukset puhelimessa (Tärkeää!):';
+        return '4. Laitevalmistajakohtaiset asetukset puhelimessa (Tärkeää!):';
     }
   }
 
@@ -948,6 +994,19 @@ class AppStrings {
         return 'Disable battery optimization';
       case AppLanguage.fi:
         return 'Poista akun optimointi käytöstä';
+    }
+  }
+
+  String get guideBtnNotificationAccess {
+    switch (lang) {
+      case AppLanguage.sv:
+        return 'Öppna aviseringsbehörighet';
+      case AppLanguage.de:
+        return 'Benachrichtigungszugriff öffnen';
+      case AppLanguage.en:
+        return 'Open Notification Access settings';
+      case AppLanguage.fi:
+        return 'Avaa ilmoitusoikeuksien asetukset';
     }
   }
 
@@ -1065,6 +1124,124 @@ class AppStrings {
         return 'Added $count history messages! Alert notification triggered.';
       case AppLanguage.fi:
         return 'Lisätty $count historiaviestiä! Varoitusilmoitus laukaistiin.';
+    }
+  }
+
+  // --- Aktiivisten ilmoitusten haku ---
+  String get tooltipImportActive {
+    switch (lang) {
+      case AppLanguage.sv:
+        return 'Hämta telefonens aktiva aviseringar';
+      case AppLanguage.de:
+        return 'Aktive Telefonbenachrichtigungen abrufen';
+      case AppLanguage.en:
+        return 'Import active phone notifications';
+      case AppLanguage.fi:
+        return 'Hae puhelimen aktiiviset ilmoitukset';
+    }
+  }
+
+  String get importSectionTitle {
+    switch (lang) {
+      case AppLanguage.sv:
+        return 'Hämta befintliga aviseringar:';
+      case AppLanguage.de:
+        return 'Bestehende Benachrichtigungen abrufen:';
+      case AppLanguage.en:
+        return 'Import existing notifications:';
+      case AppLanguage.fi:
+        return 'Hae laitteen olemassa olevat ilmoitukset:';
+    }
+  }
+
+  String get importSectionDesc {
+    switch (lang) {
+      case AppLanguage.sv:
+        return 'Hämtar aviseringar som för närvarande finns i statusfältet. Redan sparade meddelanden hoppas över automatiskt.';
+      case AppLanguage.de:
+        return 'Ruft aktuell in der Statusleiste vorhandene Benachrichtigungen ab. Bereits gespeicherte Nachrichten werden automatisch übersprungen.';
+      case AppLanguage.en:
+        return 'Fetches notifications currently active in the status bar. Previously saved messages are automatically skipped.';
+      case AppLanguage.fi:
+        return 'Hakee puhelimen ilmoituspalkissa tällä hetkellä olevat ilmoitukset. Jo aiemmin tallennetut viestit ohitetaan automaattisesti.';
+    }
+  }
+
+  String get importActiveBtn {
+    switch (lang) {
+      case AppLanguage.sv:
+        return 'Hämta aktiva aviseringar från enheten';
+      case AppLanguage.de:
+        return 'Aktive Gerätebenachrichtigungen abrufen';
+      case AppLanguage.en:
+        return 'Import active notifications from device';
+      case AppLanguage.fi:
+        return 'Hae laitteen aktiiviset ilmoitukset';
+    }
+  }
+
+  String importResultSuccess(int imported, int skipped) {
+    switch (lang) {
+      case AppLanguage.sv:
+        return 'Hämtade $imported nya aviseringar ($skipped fanns redan sparade).';
+      case AppLanguage.de:
+        return '$imported neue Benachrichtigung(en) importiert ($skipped bereits gespeichert).';
+      case AppLanguage.en:
+        return 'Imported $imported new notification(s) ($skipped already saved).';
+      case AppLanguage.fi:
+        return 'Tuotu $imported uutta ilmoitusta ($skipped oli jo ennestään tallennettu).';
+    }
+  }
+
+  String importResultAllAlreadySaved(int total) {
+    switch (lang) {
+      case AppLanguage.sv:
+        return 'Inga nya aviseringar att hämta. Alla $total enhetsaviseringar är redan sparade.';
+      case AppLanguage.de:
+        return 'Keine neuen Benachrichtigungen zum Importieren. Alle $total Benachrichtigungen sind bereits gespeichert.';
+      case AppLanguage.en:
+        return 'No new notifications to import. All $total notifications are already saved.';
+      case AppLanguage.fi:
+        return 'Ei uusia ilmoituksia tuotavaksi. Kaikki laitteen $total ilmoitusta on jo ennestään tallennettu.';
+    }
+  }
+
+  String get importResultNoneFound {
+    switch (lang) {
+      case AppLanguage.sv:
+        return 'Inga aktiva aviseringar hittades i enhetens statusfält.';
+      case AppLanguage.de:
+        return 'Keine aktiven Benachrichtigungen in der Statusleiste gefunden.';
+      case AppLanguage.en:
+        return 'No active notifications found in the device status bar.';
+      case AppLanguage.fi:
+        return 'Laitteen ilmoituspalkissa ei ole yhtään aktiivista ilmoitusta.';
+    }
+  }
+
+  String get importResultNoPermission {
+    switch (lang) {
+      case AppLanguage.sv:
+        return 'Aviseringsbehörighet krävs för att hämta aviseringar.';
+      case AppLanguage.de:
+        return 'Benachrichtigungszugriff ist erforderlich, um Benachrichtigungen abzurufen.';
+      case AppLanguage.en:
+        return 'Notification access permission is required to import notifications.';
+      case AppLanguage.fi:
+        return 'Ilmoitusten lukuoikeus vaaditaan ilmoitusten hakemiseen.';
+    }
+  }
+
+  String get importResultServiceConnecting {
+    switch (lang) {
+      case AppLanguage.sv:
+        return 'Kunde inte ansluta till aviseringstjänsten. Klicka på Aktivera för att slå av och på behörigheten i inställningarna.';
+      case AppLanguage.de:
+        return 'Verbindung zum Benachrichtigungsdienst fehlgeschlagen. Tippen Sie auf Aktivieren, um den Zugriff in den Einstellungen neu zu starten.';
+      case AppLanguage.en:
+        return 'Could not connect to notification service. Tap Enable to toggle notification access off and on in settings.';
+      case AppLanguage.fi:
+        return 'Ilmoituspalveluun ei saatu yhteyttä. Paina "Ota käyttöön" ja kytke oikeus kerran pois ja takaisin päälle asetuksista.';
     }
   }
 }

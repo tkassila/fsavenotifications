@@ -173,6 +173,51 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
+  Future<void> _importActiveNotifications() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    final res = await _notificationService.importActiveNotifications();
+    await _loadNotifications();
+
+    if (!mounted) return;
+
+    final imported = res['imported'] as int? ?? 0;
+    final skipped = res['skipped'] as int? ?? 0;
+    final total = res['total'] as int? ?? 0;
+    final hasPerm = res['permissionGranted'] as bool? ?? false;
+    final connected = res['connected'] as bool? ?? false;
+
+    String message;
+    if (!hasPerm) {
+      message = _strings.importResultNoPermission;
+    } else if (!connected && total == 0) {
+      message = _strings.importResultServiceConnecting;
+    } else if (imported > 0) {
+      message = _strings.importResultSuccess(imported, skipped);
+    } else if (total > 0) {
+      message = _strings.importResultAllAlreadySaved(total);
+    } else {
+      message = _strings.importResultNoneFound;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 4),
+        action: (!hasPerm || !connected)
+            ? SnackBarAction(
+                label: _strings.bannerBtnEnable,
+                onPressed: () {
+                  _notificationService.openNotificationAccessSettings();
+                },
+              )
+            : null,
+      ),
+    );
+  }
+
   Future<void> _showTestNotificationDialog() async {
     final titleController = TextEditingController(text: _strings.testDefaultTitle);
     final messageController = TextEditingController(
@@ -223,6 +268,28 @@ class _HomeScreenState extends State<HomeScreen>
                       title: titleController.text,
                       message: messageController.text,
                     );
+                  },
+                ),
+              ),
+              const Divider(height: 24),
+              Text(
+                _strings.importSectionTitle,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                _strings.importSectionDesc,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.tonalIcon(
+                  icon: const Icon(Icons.download_for_offline_outlined, size: 18),
+                  label: Text(_strings.importActiveBtn),
+                  onPressed: () async {
+                    Navigator.pop(ctx);
+                    await _importActiveNotifications();
                   },
                 ),
               ),
@@ -361,6 +428,15 @@ class _HomeScreenState extends State<HomeScreen>
               const SizedBox(height: 14),
               const Divider(),
               const SizedBox(height: 10),
+              _buildGuideSectionHeader(_strings.guideSecImportTitle),
+              const SizedBox(height: 6),
+              Text(
+                _strings.guideSecImportContent,
+                style: const TextStyle(fontSize: 13, height: 1.4),
+              ),
+              const SizedBox(height: 14),
+              const Divider(),
+              const SizedBox(height: 10),
               _buildGuideSectionHeader(_strings.guideSec3Title),
               const SizedBox(height: 6),
               Text(
@@ -371,6 +447,17 @@ class _HomeScreenState extends State<HomeScreen>
               const Divider(),
               const SizedBox(height: 10),
               _buildGuideSectionHeader(_strings.guideQuickSettingsTitle),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.tonalIcon(
+                  icon: const Icon(Icons.security, size: 18),
+                  label: Text(_strings.guideBtnNotificationAccess),
+                  onPressed: () {
+                    _notificationService.openNotificationAccessSettings();
+                  },
+                ),
+              ),
               const SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,
@@ -637,6 +724,11 @@ class _HomeScreenState extends State<HomeScreen>
             }).toList(),
           ),
           IconButton(
+            tooltip: _strings.tooltipImportActive,
+            icon: const Icon(Icons.download_for_offline_outlined),
+            onPressed: _importActiveNotifications,
+          ),
+          IconButton(
             tooltip: _strings.tooltipGuide,
             icon: const Icon(Icons.help_outline),
             onPressed: _showBatteryAndUsageGuide,
@@ -875,6 +967,14 @@ class _HomeScreenState extends State<HomeScreen>
                     color: Colors.grey.shade600,
                   ),
                 ),
+                if (isUnreadTab) ...[
+                  const SizedBox(height: 20),
+                  FilledButton.tonalIcon(
+                    icon: const Icon(Icons.download_for_offline_outlined, size: 18),
+                    label: Text(_strings.importActiveBtn),
+                    onPressed: _importActiveNotifications,
+                  ),
+                ],
               ],
             ),
           ),

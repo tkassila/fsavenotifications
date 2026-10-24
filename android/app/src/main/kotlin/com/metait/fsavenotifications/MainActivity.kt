@@ -51,6 +51,11 @@ class MainActivity : FlutterActivity() {
         // Pyydetään ilmoitusoikeus automaattisesti Android 13+ (API 33+) -laitteilla
         requestPostNotificationsIfRequired()
 
+        // Varmista että ilmoituspalvelu on sidottu heti käynnistyksessä jos lupa on myönnetty
+        if (isNotificationAccessGranted() && (NotificationListener.instance == null || !NotificationListener.isConnected)) {
+            rebindNotificationListener()
+        }
+
         methodChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
         methodChannel?.setMethodCallHandler { call, result ->
             val db = NotificationDatabaseHelper.getInstance(applicationContext)
@@ -251,8 +256,102 @@ class MainActivity : FlutterActivity() {
                     }
                 }
 
+                "importActiveNotifications" -> {
+                    val hasPerm = isNotificationAccessGranted()
+                    if (!hasPerm) {
+                        result.success(
+                            mapOf(
+                                "imported" to 0,
+                                "skipped" to 0,
+                                "total" to 0,
+                                "permissionGranted" to false,
+                                "connected" to false
+                            )
+                        )
+                        return@setMethodCallHandler
+                    }
+
+                    // Suoritetaan taustasäikeessä, jotta mahdollinen palvelun sidonta (rebind) ehtii tapahtua ilman UI-jumiutumista
+                    Thread {
+                        var listener = NotificationListener.instance
+
+                        if (listener == null || !NotificationListener.isConnected) {
+                            android.util.Log.d("MainActivity", "NotificationListener not connected, executing rebind...")
+                            rebindNotificationListener()
+
+                            // Odotetaan enintään 1.5 sekuntia palvelun sitoutumista
+                            for (i in 1..15) {
+                                try {
+                                    Thread.sleep(100)
+                                } catch (_: InterruptedException) {}
+                                listener = NotificationListener.instance
+                                if (listener != null) {
+                                    android.util.Log.d("MainActivity", "NotificationListener connected after ${i * 100} ms")
+                                    break
+                                }
+                            }
+                        }
+
+                        Handler(Looper.getMainLooper()).post {
+                            val currentListener = NotificationListener.instance ?: listener
+                            if (currentListener == null) {
+                                android.util.Log.w("MainActivity", "NotificationListener still not connected after rebind attempt")
+                                result.success(
+                                    mapOf(
+                                        "imported" to 0,
+                                        "skipped" to 0,
+                                        "total" to 0,
+                                        "permissionGranted" to true,
+                                        "connected" to false
+                                    )
+                                )
+                            } else {
+                                try {
+                                    val stats = currentListener.importActiveNotifications()
+                                    result.success(
+                                        mapOf(
+                                            "imported" to (stats["imported"] ?: 0),
+                                            "skipped" to (stats["skipped"] ?: 0),
+                                            "total" to (stats["total"] ?: 0),
+                                            "permissionGranted" to true,
+                                            "connected" to true
+                                        )
+                                    )
+                                } catch (e: Exception) {
+                                    result.error("IMPORT_ERROR", e.message, null)
+                                }
+                            }
+                        }
+                    }.start()
+                }
+
                 else -> result.notImplemented()
             }
+        }
+    }
+
+    private fun rebindNotificationListener() {
+        try {
+            val componentName = ComponentName(this, NotificationListener::class.java)
+            val pm = packageManager
+
+            pm.setComponentEnabledSetting(
+                componentName,
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP
+            )
+            pm.setComponentEnabledSetting(
+                componentName,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                PackageManager.DONT_KILL_APP
+            )
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                android.service.notification.NotificationListenerService.requestRebind(componentName)
+            }
+            android.util.Log.d("MainActivity", "rebindNotificationListener executed")
+        } catch (e: Exception) {
+            android.util.Log.e("MainActivity", "Failed to rebind NotificationListener: ${e.message}")
         }
     }
 

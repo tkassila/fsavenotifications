@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Material 3](https://img.shields.io/badge/Design-Material%203-7B1FA2)](https://m3.material.io)
 
-A fast, lightweight, and privacy-focused Android application built with **Flutter** and native **Kotlin** that captures, logs, and permanently preserves device notifications across reboots.
+A fast, lightweight, and privacy-focused Android application built with **Flutter** and native **Kotlin** that captures, logs, and permanently preserves device notifications across reboots and app updates.
 
 ---
 
@@ -21,13 +21,20 @@ Whether you want to recover mistakenly dismissed notifications, keep a persisten
 
 ## ✨ Features
 
-- 🔄 **Reboot & Update Persistence**
+- 🔄 **Reboot & App Update Persistence**
   - All notifications are persisted in an indexed local SQLite database (`notifications.db`).
-  - Automatically recovers and continues listening after device reboots or application updates via Android `BootReceiver`.
+  - Automatically recovers and continues listening after device reboots or application updates (`.apk` or Google Play Store) via Android `BootReceiver`.
+  - Permissions, battery exemptions, and SQLite database records remain 100% intact across app updates.
 
 - 📥 **Two-Tab Inbox & History Interface**
   - **Unread Tab**: Active inbox displaying unread notifications with live count badges.
   - **History Tab**: Complete archive of previously read notifications.
+
+- 📥 **On-Demand Active Notification Import ("Hae ilmoitusviestit")**
+  - Pull all unread notifications currently sitting in the Android notification shade directly into the app on demand.
+  - Accessible from the top app bar download icon (`download_for_offline`), the tools & tests dialog, or empty inbox button.
+  - **Automated Duplicate Prevention**: Checks each notification against existing SQLite records by unique notification key, package name, title, text, and timestamp window (±3s). Messages already in unread or history are never duplicated.
+  - **Self-Healing Rebind Engine**: Employs dynamic component toggling (`pm.setComponentEnabledSetting` & `requestRebind`) to ensure the listener connects reliably even after fresh installs or Android OS process restarts.
 
 - 👆 **Intuitive Gestures & Quick Actions**
   - **Swipe to Mark Read**: Swipe any item in the Unread tab to move it into History.
@@ -44,6 +51,10 @@ Whether you want to recover mistakenly dismissed notifications, keep a persisten
   - Tapping the warning notification directly launches the application into the History tab for quick cleanup.
   - Features an in-app warning banner with a 1-click cleanup button.
 
+- 📖 **Comprehensive Multilingual Help & User Guide**
+  - In-app modal guide covering initial setup, active notification imports, background execution, and OEM-specific battery settings (Samsung One UI, Xiaomi MIUI/HyperOS, OnePlus/Oppo ColorOS).
+  - Quick action buttons to directly open Notification Access settings, App Info, and Battery Optimization exception dialogs.
+
 - 🌐 **Multi-Language Support (i18n)**
   - Automatically adopts the device language on launch.
   - Quick language switch dropdown from the top app bar supporting:
@@ -56,12 +67,9 @@ Whether you want to recover mistakenly dismissed notifications, keep a persisten
   - Built with Flutter Material 3 design tokens, rounded surfaces, dynamic typography, and colored app avatars.
   - Native **Light** and **Dark** theme support.
 
-- 🔋 **Battery Optimization & Permission Assistant**
-  - Built-in diagnostic dialog providing step-by-step guidance for aggressive OEM battery managers (Samsung OneUI, Xiaomi MIUI/HyperOS, Huawei EMUI, etc.).
-  - Direct deep-links to Android *Special App Access* (Notification Listener settings) and *Battery Optimization* exception dialogues.
-
 - 🧪 **Built-in Developer & Test Suite**
   - Interactive test dialog to send custom push notifications.
+  - On-demand active notification import test with duplicate count feedback.
   - Batch generator to populate 500 test messages to test threshold notifications and scrolling performance.
   - Manual trigger button for the history warning notification.
 
@@ -87,22 +95,24 @@ graph TD
     C -->|Queries / Mutations| F
     I[Device Reboot / Update] -->|BOOT_COMPLETED| J[BootReceiver]
     J -.->|Rebinds service| B
+    H -->|Manual Import Request| F
+    F -->|Active Notifications Query| B
 ```
 
 ### Key Components
 
 - **Flutter / Dart Layer (`lib/`)**:
-  - `HomeScreen` (`lib/screens/home_screen.dart`): Primary UI featuring unread/history tabs, search filtering, dismissal gestures, and theme management.
+  - `HomeScreen` (`lib/screens/home_screen.dart`): Primary UI featuring unread/history tabs, search filtering, manual active notifications import, dismissal gestures, and theme management.
   - `NotificationService` (`lib/services/notification_service.dart`): Flutter platform interface managing `MethodChannel('com.metait.fsavenotifications/channel')`.
   - `SavedNotification` (`lib/models/saved_notification.dart`): Model representing notification records.
-  - `LocaleService` & `AppStrings` (`lib/l10n/app_strings.dart`): In-memory localization and runtime language switching.
+  - `LocaleService` & `AppStrings` (`lib/l10n/app_strings.dart`): In-memory localization, user help guide content, and runtime language switching.
 
 - **Native Android Layer (`android/app/src/main/kotlin/`)**:
-  - `NotificationListener` (`NotificationListener.kt`): Extends `NotificationListenerService` to capture status bar notifications and forward events.
-  - `NotificationDatabaseHelper` (`NotificationDatabaseHelper.kt`): Manages the local SQLite database (`notifications.db`), indexed queries, updates, and deduplication.
+  - `NotificationListener` (`NotificationListener.kt`): Extends `NotificationListenerService` to capture status bar notifications, maintain active instance binding, and import active notifications with duplicate detection.
+  - `NotificationDatabaseHelper` (`NotificationDatabaseHelper.kt`): Manages the local SQLite database (`notifications.db`), indexed queries, updates, and duplicate validation (`isNotificationAlreadySaved`).
   - `HistoryAlertManager` (`HistoryAlertManager.kt`): Manages warning threshold logic (500+ messages), notification channels, and deep-link routing.
-  - `BootReceiver` (`BootReceiver.kt`): Listens for `ACTION_BOOT_COMPLETED` and `ACTION_MY_PACKAGE_REPLACED` to ensure background readiness.
-  - `MainActivity` (`MainActivity.kt`): Handles platform channel method calls, intent extras (`open_tab`), and permission checks.
+  - `BootReceiver` (`BootReceiver.kt`): Listens for `ACTION_BOOT_COMPLETED` and `ACTION_MY_PACKAGE_REPLACED` to ensure background readiness across reboots and app updates.
+  - `MainActivity` (`MainActivity.kt`): Handles platform channel method calls, intent extras (`open_tab`), permission checks, and background listener rebind management (`rebindNotificationListener`).
 
 ---
 
@@ -133,7 +143,7 @@ Stored in `notifications.db`:
 | :--- | :--- |
 | `BIND_NOTIFICATION_LISTENER_SERVICE` | Special Android permission required to listen to status bar notifications. Configured via system settings. |
 | `POST_NOTIFICATIONS` | Runtime permission on Android 13+ (API 33+) to display history threshold alerts and test notifications. |
-| `RECEIVE_BOOT_COMPLETED` | Allows the application to register receivers upon device boot. |
+| `RECEIVE_BOOT_COMPLETED` | Allows the application to register receivers upon device boot and app update. |
 | `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | Prompts the system to exempt the app from aggressive battery optimizations so background listening is uninterrupted. |
 
 ---
@@ -190,8 +200,9 @@ Generated APKs will be located in `build/app/outputs/flutter-apk/`:
 The app includes a built-in diagnostic and testing suite accessible via the Floating Action Button:
 
 1. **Send Test Notification**: Post a custom title and body to verify listener capture and database storage.
-2. **500 History Alert Trigger**: Manually fire the threshold alert to verify system notification channels and deep-linking to the History tab.
-3. **Batch Generator**: Insert 500 test messages in one operation to stress-test UI responsiveness, database indexing, and warning banners.
+2. **Import Active Notifications ("Hae ilmoitusviestit")**: Pull all unread notifications currently sitting in the device status bar into the inbox, automatically skipping duplicates.
+3. **500 History Alert Trigger**: Manually fire the threshold alert to verify system notification channels and deep-linking to the History tab.
+4. **Batch Generator**: Insert 500 test messages in one operation to stress-test UI responsiveness, database indexing, and warning banners.
 
 ---
 
