@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">fsavenotifications</string>
+    <string name="history_channel_name">History alerts</string>
+    <string name="history_channel_desc">Alert when 500 or more history messages have accumulated</string>
+    <string name="history_alert_title">Many history messages, please delete them</string>
+    <string name="history_alert_text">The app has %1$d saved history messages. Tap to delete them.</string>
+    <string name="history_alert_big_text">%1$s\n\nTap this notification to open the app history view and clear messages.</string>
+    <string name="test_channel_name">Test notifications</string>
+    <string name="test_channel_desc">Notification storage and testing channel</string>
+</resources>

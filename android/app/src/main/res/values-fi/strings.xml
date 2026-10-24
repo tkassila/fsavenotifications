@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">fsavenotifications</string>
+    <string name="history_channel_name">Historiavaroitukset</string>
+    <string name="history_channel_desc">Varoitus kun historiaviestejä on kertynyt vähintään 500</string>
+    <string name="history_alert_title">Historiaviestejä paljon, ole hyvä ja poista ne</string>
+    <string name="history_alert_text">Sovelluksessa on %1$d tallennettua historiaviestiä. Napauta poistaaksesi ne.</string>
+    <string name="history_alert_big_text">%1$s\n\nNapauta tätä ilmoitusta avataksesi sovelluksen historia-näkymän ja tyhjentääksesi viestit.</string>
+    <string name="test_channel_name">Testi-ilmoitukset</string>
+    <string name="test_channel_desc">Ilmoitusten tallennuksen ja testauksen kanava</string>
+</resources>

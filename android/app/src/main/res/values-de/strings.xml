@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">fsavenotifications</string>
+    <string name="history_channel_name">Verlaufswarnungen</string>
+    <string name="history_channel_desc">Warnung, wenn mindestens 500 Verlaufsnachrichten gesammelt wurden</string>
+    <string name="history_alert_title">Viele Verlaufsnachrichten, bitte löschen Sie diese</string>
+    <string name="history_alert_text">Die App hat %1$d gespeicherte Verlaufsnachrichten. Tippen Sie hier, um sie zu löschen.</string>
+    <string name="history_alert_big_text">%1$s\n\nTippen Sie auf diese Benachrichtigung, um den Verlauf der App zu öffnen und Nachrichten zu löschen.</string>
+    <string name="test_channel_name">Testbenachrichtigungen</string>
+    <string name="test_channel_desc">Kanal zum Speichern und Testen von Benachrichtigungen</string>
+</resources>
