@@ -292,4 +292,38 @@ class NotificationService {
       };
     }
   }
+
+  /// Avaa ilmoituksen tai sen lähettäneen sovelluksen:
+  /// 1. Jos ilmoitus on yhä aktiivisena ilmoituspalkissa, laukaisee sen alkuperäisen intentin.
+  /// 2. Jos ilmoitus ei ole enää aktiivinen, avaa kyseisen sovelluksen pääaktiviteetin.
+  Future<bool> openNotification({
+    required String packageName,
+    String? key,
+  }) async {
+    try {
+      final bool? success = await _channel.invokeMethod('openNotification', {
+        'packageName': packageName,
+        'key': key,
+      });
+      return success ?? false;
+    } on PlatformException catch (e) {
+      // ignore: avoid_print
+      print('Virhe avattaessa ilmoitusta tai sovellusta: ${e.message}');
+      return false;
+    }
+  }
+
+  /// Avaa annetun verkkolinkin tai URL-osoitteen laitteen oletusselaimessa
+  Future<bool> openUrl(String url) async {
+    try {
+      final bool? success = await _channel.invokeMethod('openUrl', {
+        'url': url,
+      });
+      return success ?? false;
+    } on PlatformException catch (e) {
+      // ignore: avoid_print
+      print('Virhe avattaessa linkkiä: ${e.message}');
+      return false;
+    }
+  }
 }

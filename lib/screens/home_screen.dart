@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../l10n/app_strings.dart';
@@ -500,6 +501,52 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
+  Future<void> _openNotificationOrApp(SavedNotification item) async {
+    final success = await _notificationService.openNotification(
+      packageName: item.packageName,
+      key: item.key,
+    );
+    if (!success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_strings.appNotInstalled),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  Future<void> _openUrl(String url) async {
+    final success = await _notificationService.openUrl(url);
+    if (!success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_strings.openUrlError),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  List<String> _extractUrls(String text) {
+    if (text.isEmpty) return const [];
+    final urlRegex = RegExp(
+      r'(https?:\/\/[^\s<>"{}|\\^`]+|www\.[^\s<>"{}|\\^`]+|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})',
+      caseSensitive: false,
+    );
+    final results = <String>[];
+    for (final m in urlRegex.allMatches(text)) {
+      String rawUrl = m.group(0)!;
+      while (rawUrl.isNotEmpty && RegExp(r'[,.;:!?]$').hasMatch(rawUrl)) {
+        rawUrl = rawUrl.substring(0, rawUrl.length - 1);
+      }
+      if (rawUrl.isNotEmpty && !results.contains(rawUrl)) {
+        results.add(rawUrl);
+      }
+    }
+    return results;
+  }
+
   void _showNotificationDetail(SavedNotification item) {
     showModalBottomSheet(
       context: context,
@@ -509,6 +556,8 @@ class _HomeScreenState extends State<HomeScreen>
       ),
       builder: (ctx) {
         final timeStr = DateFormat('dd.MM.yyyy HH:mm:ss').format(item.postTime);
+        final detectedUrls = _extractUrls('${item.title} ${item.text}');
+
         return Padding(
           padding: EdgeInsets.only(
             top: 20,
@@ -594,22 +643,60 @@ class _HomeScreenState extends State<HomeScreen>
               ),
               const SizedBox(height: 12),
               if (item.title.isNotEmpty) ...[
-                Text(
-                  item.title,
+                ClickableText(
+                  text: item.title,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
+                  onLinkTap: (url) => _openUrl(url),
                 ),
                 const SizedBox(height: 8),
               ],
-              Text(
-                item.text.isNotEmpty ? item.text : _strings.noTextContent,
+              ClickableText(
+                text: item.text.isNotEmpty ? item.text : _strings.noTextContent,
                 style: const TextStyle(fontSize: 15, height: 1.4),
+                onLinkTap: (url) => _openUrl(url),
               ),
+              if (detectedUrls.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Text(
+                  _strings.linksInNotification,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  children: detectedUrls.map((url) {
+                    final isEmail = url.contains('@') && !url.startsWith('http');
+                    return ActionChip(
+                      avatar: Icon(
+                        isEmail ? Icons.email_outlined : Icons.link,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      label: Text(
+                        url,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.primary,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                      onPressed: () => _openUrl(url),
+                    );
+                  }).toList(),
+                ),
+              ],
               const SizedBox(height: 24),
               Row(
-                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton.icon(
                     icon: const Icon(Icons.delete_outline, color: Colors.red),
@@ -617,6 +704,15 @@ class _HomeScreenState extends State<HomeScreen>
                     onPressed: () {
                       Navigator.pop(ctx);
                       _deleteNotification(item);
+                    },
+                  ),
+                  const Spacer(),
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.open_in_new, size: 16),
+                    label: Text(_strings.openApp),
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _openNotificationOrApp(item);
                     },
                   ),
                   const SizedBox(width: 8),
@@ -1086,14 +1182,33 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: Text(
-                            item.appName,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          child: Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  item.appName,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              IconButton(
+                                visualDensity: VisualDensity.compact,
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
+                                icon: Icon(
+                                  Icons.open_in_new,
+                                  size: 13,
+                                  color: Theme.of(context).colorScheme.primary.withAlpha(180),
+                                ),
+                                tooltip: _strings.tooltipOpenApp,
+                                onPressed: () => _openNotificationOrApp(item),
+                              ),
+                            ],
                           ),
                         ),
                         Text(
@@ -1108,33 +1223,63 @@ class _HomeScreenState extends State<HomeScreen>
                     const SizedBox(height: 8),
                     // Otsikko
                     if (item.title.isNotEmpty) ...[
-                      Text(
-                        item.title,
+                      ClickableText(
+                        text: item.title,
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: isUnreadTab ? FontWeight.bold : FontWeight.w600,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
+                        onLinkTap: (url) => _openUrl(url),
                       ),
                       const SizedBox(height: 4),
                     ],
                     // Viestin sisältö
                     if (item.text.isNotEmpty)
-                      Text(
-                        item.text,
+                      ClickableText(
+                        text: item.text,
                         style: TextStyle(
                           fontSize: 13.5,
                           color: Colors.grey.shade800,
                         ),
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
+                        onLinkTap: (url) => _openUrl(url),
                       ),
                     const SizedBox(height: 6),
                     // Alarivi: toiminnot
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        // Avaa sovellus -pikatoiminto
+                        InkWell(
+                          borderRadius: BorderRadius.circular(8),
+                          onTap: () => _openNotificationOrApp(item),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.open_in_new,
+                                  size: 15,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  _strings.openApp,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        // Oikealla: Luettu / Poista
                         if (isUnreadTab)
                           TextButton.icon(
                             style: TextButton.styleFrom(
@@ -1179,5 +1324,125 @@ class _HomeScreenState extends State<HomeScreen>
     } else {
       return DateFormat('dd.MM. HH:mm').format(dt);
     }
+  }
+}
+
+/// Widget, joka tunnistaa tekstistä automaattisesti URL-linkit ja sähköpostit
+/// ja tekee niistä klikattavia ja visuaalisesti korostettuja linkkejä.
+class ClickableText extends StatefulWidget {
+  final String text;
+  final TextStyle? style;
+  final TextStyle? linkStyle;
+  final int? maxLines;
+  final TextOverflow? overflow;
+  final void Function(String url)? onLinkTap;
+
+  const ClickableText({
+    super.key,
+    required this.text,
+    this.style,
+    this.linkStyle,
+    this.maxLines,
+    this.overflow,
+    this.onLinkTap,
+  });
+
+  @override
+  State<ClickableText> createState() => _ClickableTextState();
+}
+
+class _ClickableTextState extends State<ClickableText> {
+  final List<TapGestureRecognizer> _recognizers = [];
+
+  @override
+  void dispose() {
+    _disposeRecognizers();
+    super.dispose();
+  }
+
+  void _disposeRecognizers() {
+    for (final r in _recognizers) {
+      r.dispose();
+    }
+    _recognizers.clear();
+  }
+
+  List<InlineSpan> _buildSpans(BuildContext context) {
+    _disposeRecognizers();
+    if (widget.text.isEmpty) return const [];
+
+    final urlRegex = RegExp(
+      r'(https?:\/\/[^\s<>"{}|\\^`]+|www\.[^\s<>"{}|\\^`]+|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})',
+      caseSensitive: false,
+    );
+
+    final spans = <InlineSpan>[];
+    int lastMatchEnd = 0;
+    final matches = urlRegex.allMatches(widget.text);
+
+    final defaultLinkStyle = TextStyle(
+      color: Theme.of(context).colorScheme.primary,
+      decoration: TextDecoration.underline,
+      fontWeight: FontWeight.w600,
+    );
+
+    for (final match in matches) {
+      if (match.start > lastMatchEnd) {
+        spans.add(TextSpan(
+          text: widget.text.substring(lastMatchEnd, match.start),
+          style: widget.style,
+        ));
+      }
+
+      String rawUrl = match.group(0)!;
+      String trailingPunctuation = '';
+      while (rawUrl.isNotEmpty && RegExp(r'[,.;:!?]$').hasMatch(rawUrl)) {
+        trailingPunctuation = rawUrl.substring(rawUrl.length - 1) + trailingPunctuation;
+        rawUrl = rawUrl.substring(0, rawUrl.length - 1);
+      }
+
+      if (rawUrl.isNotEmpty) {
+        final recognizer = TapGestureRecognizer()
+          ..onTap = () {
+            widget.onLinkTap?.call(rawUrl);
+          };
+        _recognizers.add(recognizer);
+
+        spans.add(TextSpan(
+          text: rawUrl,
+          style: widget.linkStyle ?? defaultLinkStyle,
+          recognizer: recognizer,
+        ));
+      }
+
+      if (trailingPunctuation.isNotEmpty) {
+        spans.add(TextSpan(
+          text: trailingPunctuation,
+          style: widget.style,
+        ));
+      }
+
+      lastMatchEnd = match.end;
+    }
+
+    if (lastMatchEnd < widget.text.length) {
+      spans.add(TextSpan(
+        text: widget.text.substring(lastMatchEnd),
+        style: widget.style,
+      ));
+    }
+
+    return spans;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final spans = _buildSpans(context);
+    return Text.rich(
+      TextSpan(children: spans),
+      style: widget.style,
+      maxLines: widget.maxLines,
+      overflow: widget.overflow ?? TextOverflow.clip,
+    );
   }
 }

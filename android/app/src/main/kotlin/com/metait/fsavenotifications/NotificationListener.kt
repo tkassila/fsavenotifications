@@ -189,4 +189,35 @@ class NotificationListener : NotificationListenerService() {
             "total" to totalCount
         )
     }
+
+    fun triggerNotificationIntent(key: String?, packageName: String?): Boolean {
+        try {
+            val activeList = try {
+                activeNotifications ?: emptyArray()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error accessing activeNotifications: ${e.message}", e)
+                emptyArray()
+            }
+
+            // 1. Etsitään tarkalla avaimella
+            var match: StatusBarNotification? = null
+            if (!key.isNullOrBlank()) {
+                match = activeList.firstOrNull { it.key == key }
+            }
+
+            // 2. Jos ei löydy avaimella, etsitään pakettinimellä
+            if (match == null && !packageName.isNullOrBlank()) {
+                match = activeList.firstOrNull { it.packageName == packageName }
+            }
+
+            if (match?.notification?.contentIntent != null) {
+                match.notification.contentIntent.send()
+                Log.d(TAG, "Successfully triggered contentIntent for: ${match.packageName} (key: $key)")
+                return true
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to trigger contentIntent: ${e.message}", e)
+        }
+        return false
+    }
 }

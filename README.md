@@ -39,7 +39,9 @@ Whether you want to recover mistakenly dismissed notifications, keep a persisten
 - 👆 **Intuitive Gestures & Quick Actions**
   - **Swipe to Mark Read**: Swipe any item in the Unread tab to move it into History.
   - **Swipe to Delete**: Swipe items in History to permanently erase them.
-  - **Detail View**: Tap any notification card to inspect full metadata in a bottom sheet (application name, package ID, exact arrival timestamp, full title, and expanded body text).
+  - **Direct App Launch**: Tap the quick-launch icon or "Open app" button directly on any card or detail sheet to launch the originating app or trigger its active system notification intent.
+  - **Interactive Links & URLs**: Automatically detects web URLs (`https://`, `http://`, `www.`) and email addresses in message text, making them clickable with dedicated link chips in the detail view.
+  - **Detail View**: Tap any notification card to inspect full metadata in a bottom sheet (application name, package ID, exact arrival timestamp, full title, expanded body text, and interactive link chips).
   - **Bulk Actions**: One-tap "Mark all as read" (`done_all`) and "Clear history" (`delete_sweep`).
 
 - 🔍 **Instant Search & Real-Time Filtering**

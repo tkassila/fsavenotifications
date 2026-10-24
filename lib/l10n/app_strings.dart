@@ -1244,5 +1244,83 @@ class AppStrings {
         return 'Ilmoituspalveluun ei saatu yhteyttä. Paina "Ota käyttöön" ja kytke oikeus kerran pois ja takaisin päälle asetuksista.';
     }
   }
+
+  String get openApp {
+    switch (lang) {
+      case AppLanguage.sv:
+        return 'Öppna app';
+      case AppLanguage.de:
+        return 'App öffnen';
+      case AppLanguage.en:
+        return 'Open app';
+      case AppLanguage.fi:
+        return 'Avaa sovellus';
+    }
+  }
+
+  String get openNotification {
+    switch (lang) {
+      case AppLanguage.sv:
+        return 'Öppna avisering';
+      case AppLanguage.de:
+        return 'Benachrichtigung öffnen';
+      case AppLanguage.en:
+        return 'Open notification';
+      case AppLanguage.fi:
+        return 'Avaa ilmoitus';
+    }
+  }
+
+  String get tooltipOpenApp {
+    switch (lang) {
+      case AppLanguage.sv:
+        return 'Öppna i app';
+      case AppLanguage.de:
+        return 'In App öffnen';
+      case AppLanguage.en:
+        return 'Open in app';
+      case AppLanguage.fi:
+        return 'Avaa sovelluksessa';
+    }
+  }
+
+  String get linksInNotification {
+    switch (lang) {
+      case AppLanguage.sv:
+        return 'Länkar i meddelandet';
+      case AppLanguage.de:
+        return 'Links in der Nachricht';
+      case AppLanguage.en:
+        return 'Links in message';
+      case AppLanguage.fi:
+        return 'Linkit viestissä';
+    }
+  }
+
+  String get appNotInstalled {
+    switch (lang) {
+      case AppLanguage.sv:
+        return 'Appen är inte tillgänglig på enheten';
+      case AppLanguage.de:
+        return 'Die App ist auf dem Gerät nicht verfügbar';
+      case AppLanguage.en:
+        return 'App is not available on this device';
+      case AppLanguage.fi:
+        return 'Sovellusta ei löydy laitteesta';
+    }
+  }
+
+  String get openUrlError {
+    switch (lang) {
+      case AppLanguage.sv:
+        return 'Kunde inte öppna länken';
+      case AppLanguage.de:
+        return 'Link konnte nicht geöffnet werden';
+      case AppLanguage.en:
+        return 'Failed to open link';
+      case AppLanguage.fi:
+        return 'Linkin avaaminen epäonnistui';
+    }
+  }
 }
 

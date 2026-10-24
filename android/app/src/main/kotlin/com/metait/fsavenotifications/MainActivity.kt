@@ -325,6 +325,62 @@ class MainActivity : FlutterActivity() {
                     }.start()
                 }
 
+                "openNotification" -> {
+                    val key = call.argument<String>("key")
+                    val packageName = call.argument<String>("packageName")
+                    var opened = false
+
+                    // 1. Kokeillaan ensin laukaista alkuperäisen ilmoituksen oma Intent, jos se on yhä aktiivinen laitteessa
+                    val listener = NotificationListener.instance
+                    if (listener != null) {
+                        opened = listener.triggerNotificationIntent(key, packageName)
+                    }
+
+                    // 2. Jos ei ollut aktiivinen tai PendingIntent epäonnistui, avataan sovelluksen pääaktiviteetti
+                    if (!opened && !packageName.isNullOrBlank()) {
+                        try {
+                            val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
+                            if (launchIntent != null) {
+                                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                startActivity(launchIntent)
+                                opened = true
+                            } else {
+                                android.util.Log.w("MainActivity", "Launch intent not found for package: $packageName")
+                            }
+                        } catch (e: Exception) {
+                            android.util.Log.e("MainActivity", "Failed to launch package $packageName: ${e.message}", e)
+                        }
+                    }
+
+                    result.success(opened)
+                }
+
+                "openUrl" -> {
+                    val url = call.argument<String>("url")
+                    if (!url.isNullOrBlank()) {
+                        try {
+                            var uriString = url.trim()
+                            if (!uriString.startsWith("http://", ignoreCase = true) &&
+                                !uriString.startsWith("https://", ignoreCase = true) &&
+                                !uriString.startsWith("tel:", ignoreCase = true) &&
+                                !uriString.startsWith("mailto:", ignoreCase = true)
+                            ) {
+                                uriString = "https://$uriString"
+                            }
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uriString)).apply {
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            }
+                            startActivity(intent)
+                            result.success(true)
+                        } catch (e: Exception) {
+                            android.util.Log.e("MainActivity", "Failed to open URL $url: ${e.message}", e)
+                            result.success(false)
+                        }
+                    } else {
+                        result.success(false)
+                    }
+                }
+
                 else -> result.notImplemented()
             }
         }
