@@ -15,14 +15,14 @@ object HistoryAlertManager {
     private const val NOTIFICATION_ID = 9999
     private const val PREFS_NAME = "fsave_alert_prefs"
     private const val KEY_LAST_ALERT_TIME = "last_alert_time"
-    const val THRESHOLD = 500
+    const val THRESHOLD = 1000
 
     fun checkAndNotify(context: Context, force: Boolean = false) {
         val db = NotificationDatabaseHelper.getInstance(context)
         val readCount = db.getReadCount()
         val totalCount = db.getTotalCount()
 
-        // Katsotaan onko historiaviestejä (luetut tai kokonaismäärä) vähintään 500
+        // Katsotaan onko historiaviestejä (luetut tai kokonaismäärä) vähintään 1000
         val historyCount = if (readCount >= THRESHOLD) readCount else if (totalCount >= THRESHOLD) totalCount else 0
 
         if (historyCount < THRESHOLD && !force) {
@@ -96,7 +96,7 @@ object HistoryAlertManager {
                 .build()
 
             notificationManager.notify(NOTIFICATION_ID, notification)
-            Log.d(TAG, "Sent 500+ history alert notification with $count messages")
+            Log.d(TAG, "Sent 1000+ history alert notification with $count messages")
         } catch (e: Exception) {
             Log.e(TAG, "Error sending history alert: ${e.message}", e)
         }

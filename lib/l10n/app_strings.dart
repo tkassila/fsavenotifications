@@ -656,13 +656,13 @@ class AppStrings {
   String get testSection2Title {
     switch (lang) {
       case AppLanguage.sv:
-        return '2. Larmtest för 500 historikmeddelanden:';
+        return '2. Larmtest för 1000 historikmeddelanden:';
       case AppLanguage.de:
-        return '2. Alarmtest für 500 Verlaufsnachrichten:';
+        return '2. Alarmtest für 1000 Verlaufsnachrichten:';
       case AppLanguage.en:
-        return '2. 500 history messages alert test:';
+        return '2. 1000 history messages alert test:';
       case AppLanguage.fi:
-        return '2. 500 historiaviestin hälytystestaus:';
+        return '2. 1000 historiaviestin hälytystestaus:';
     }
   }
 
@@ -682,26 +682,26 @@ class AppStrings {
   String get testTriggerAlertBtn {
     switch (lang) {
       case AppLanguage.sv:
-        return 'Utlös 500-varningsavisering';
+        return 'Utlös 1000-varningsavisering';
       case AppLanguage.de:
-        return '500er-Warnbenachrichtigung auslösen';
+        return '1000er-Warnbenachrichtigung auslösen';
       case AppLanguage.en:
-        return 'Trigger 500 alert notification';
+        return 'Trigger 1000 alert notification';
       case AppLanguage.fi:
-        return 'Laukaise 500-varoitusilmoitus';
+        return 'Laukaise 1000-varoitusilmoitus';
     }
   }
 
   String get testGenerate500Btn {
     switch (lang) {
       case AppLanguage.sv:
-        return 'Skapa 500 historikmeddelanden i databasen';
+        return 'Skapa 1000 historikmeddelanden i databasen';
       case AppLanguage.de:
-        return '500 Verlaufsnachrichten in Datenbank generieren';
+        return '1000 Verlaufsnachrichten in Datenbank generieren';
       case AppLanguage.en:
-        return 'Generate 500 history messages in DB';
+        return 'Generate 1000 history messages in DB';
       case AppLanguage.fi:
-        return 'Generoi tietokantaan 500 historiaviestiä';
+        return 'Generoi tietokantaan 1000 historiaviestiä';
     }
   }
 
@@ -823,30 +823,30 @@ class AppStrings {
         return '• Bakgrundssparande:\n'
             'Alla inkommande aviseringar sparas i enhetens lokala SQLite-databas i bakgrunden och bevaras även efter att telefonen har startats om.\n\n'
             '• Olästa meddelanden:\n'
-            'Olästa meddelanden försvinner från huvudvyn omedelbart när de markeras som lästa eller öppnas.\n\n'
-            '• 500 meddelandens rensningsvarning:\n'
-            'När 500 eller fler meddelanden ackumuleras i historiken skickar appen en prioriterad avisering: "Många historikmeddelanden, vänligen ta bort dem" och erbjuder en direktlänk till historiken för rensning.';
+            'Olästa meddelanden flyttas automatiskt till historiken när du läser eller kvitterar aviseringen i telefonen, eller när de öppnas/markeras som lästa i denna app.\n\n'
+            '• 1000 meddelandens rensningsvarning:\n'
+            'När 1000 eller fler meddelanden ackumuleras i historiken skickar appen en prioriterad avisering: "Många historikmeddelanden, vänligen ta bort dem" och erbjuder en direktlänk till historiken för rensning.';
       case AppLanguage.de:
         return '• Hintergrundspeicherung:\n'
             'Alle eingehenden Benachrichtigungen werden im Hintergrund in der lokalen SQLite-Datenbank des Geräts gespeichert und bleiben auch nach einem Neustart erhalten.\n\n'
             '• Ungelesene Nachrichten:\n'
-            'Ungelesene Nachrichten verschwinden sofort aus der Hauptansicht, sobald sie als gelesen markiert oder geöffnet werden.\n\n'
-            '• 500-Nachrichten-Bereinigungswarnung:\n'
-            'Wenn 500 oder mehr Nachrichten im Verlauf gesammelt wurden, sendet die App eine Benachrichtigung mit hoher Priorität: "Viele Verlaufsnachrichten, bitte löschen Sie diese" und bietet einen direkten Link zum Verlauf.';
+            'Ungelesene Nachrichten werden automatisch in den Verlauf verschoben, wenn Sie die Benachrichtigung auf dem Telefon lesen oder schließen, oder wenn sie in dieser App geöffnet/als gelesen markiert werden.\n\n'
+            '• 1000-Nachrichten-Bereinigungswarnung:\n'
+            'Wenn 1000 oder mehr Nachrichten im Verlauf gesammelt wurden, sendet die App eine Benachrichtigung mit hoher Priorität: "Viele Verlaufsnachrichten, bitte löschen Sie diese" und bietet einen direkten Link zum Verlauf.';
       case AppLanguage.en:
         return '• Background Storage:\n'
             'All incoming notifications are saved to the device local SQLite database in the background and persist even after rebooting the phone.\n\n'
             '• Unread Messages:\n'
-            'Unread messages are removed from the main view immediately once marked as read or opened.\n\n'
-            '• 500 Messages Cleanup Alert:\n'
-            'When 500 or more messages accumulate in history, the app sends a high-priority notification: "Many history messages, please delete them" and provides a direct link to clear history.';
+            'Unread messages automatically move to history when you read or dismiss the original notification on your phone, or when marked as read/opened in this app.\n\n'
+            '• 1000 Messages Cleanup Alert:\n'
+            'When 1000 or more messages accumulate in history, the app sends a high-priority notification: "Many history messages, please delete them" and provides a direct link to clear history.';
       case AppLanguage.fi:
         return '• Taustatallennus:\n'
             'Kaikki saapuvat ilmoitukset tallentuvat laitteen paikalliseen SQLite-tietokantaan taustalla ja säilyvät myös puhelimen uudelleenkäynnistyksen jälkeen.\n\n'
             '• Lukemattomat viestit:\n'
-            'Lukemattomat viestit poistuvat päänäkymästä heti, kun ne merkitään luetuiksi tai avataan.\n\n'
-            '• 500 viestin siivousvaroitus:\n'
-            'Kun historiaan kertyy 500 tai enemmän viestiä, sovellus lähettää korkean prioriteetin ilmoituksen: "Historiaviestejä paljon, ole hyvä ja poista ne" ja tarjoaa suoran linkin historiaan viestien tyhjentämiseksi.';
+            'Lukemattomat viestit siirtyvät automaattisesti historiaan heti, kun luet tai kuittaat ilmoituksen puhelimessa, taikka kun ne avataan tai merkitään luetuiksi tässä sovelluksessa.\n\n'
+            '• 1000 viestin siivousvaroitus:\n'
+            'Kun historiaan kertyy 1000 tai enemmän viestiä, sovellus lähettää korkean prioriteetin ilmoituksen: "Historiaviestejä paljon, ole hyvä ja poista ne" ja tarjoaa suoran linkin historiaan viestien tyhjentämiseksi.';
     }
   }
 

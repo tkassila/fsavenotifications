@@ -36,6 +36,15 @@ class MainActivity : FlutterActivity() {
                 )
             }
         }
+
+        fun notifyFlutterNotificationRemoved(key: String) {
+            Handler(Looper.getMainLooper()).post {
+                methodChannel?.invokeMethod(
+                    "onNotificationRemoved",
+                    mapOf("key" to key)
+                )
+            }
+        }
     }
 
     private var initialTab: String? = null
@@ -43,7 +52,7 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-        // Capture initial tab from launch intent (e.g. from 500+ history alert notification)
+        // Capture initial tab from launch intent (e.g. from 1000+ history alert notification)
         if (intent?.hasExtra("open_tab") == true) {
             initialTab = intent.getStringExtra("open_tab")
         }
@@ -246,7 +255,7 @@ class MainActivity : FlutterActivity() {
 
                 "insertBatchTestMessages" -> {
                     try {
-                        val count = (call.argument<Number>("count"))?.toInt() ?: 500
+                        val count = (call.argument<Number>("count"))?.toInt() ?: 1000
                         val markAsRead = call.argument<Boolean>("markAsRead") ?: true
                         val inserted = db.insertBatchTestMessages(count, markAsRead)
                         HistoryAlertManager.checkAndNotify(applicationContext, force = true)

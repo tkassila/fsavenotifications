@@ -29,6 +29,7 @@ Whether you want to recover mistakenly dismissed notifications, keep a persisten
 - 📥 **Two-Tab Inbox & History Interface**
   - **Unread Tab**: Active inbox displaying unread notifications with live count badges.
   - **History Tab**: Complete archive of previously read notifications.
+  - **Automatic Read State Sync**: When a notification is dismissed, clicked, or cancelled by the originating application (e.g. read inside WhatsApp or Gmail), `NotificationListenerService.onNotificationRemoved` automatically marks the notification as read in the SQLite database and moves it to History in real time.
 
 - 📥 **On-Demand Active Notification Import ("Hae ilmoitusviestit")**
   - Pull all unread notifications currently sitting in the Android notification shade directly into the app on demand.
@@ -47,9 +48,9 @@ Whether you want to recover mistakenly dismissed notifications, keep a persisten
 - 🔍 **Instant Search & Real-Time Filtering**
   - Real-time search bar filtering across application names, notification titles, and message bodies.
 
-- ⚠️ **Automated History Maintenance (500+ Threshold Alert)**
+- ⚠️ **Automated History Maintenance (1000+ Threshold Alert)**
   - Continuously monitors accumulated notifications.
-  - Sends a high-priority system alert when 500 or more notifications accumulate in history.
+  - Sends a high-priority system alert when 1000 or more notifications accumulate in history.
   - Tapping the warning notification directly launches the application into the History tab for quick cleanup.
   - Features an in-app warning banner with a 1-click cleanup button.
 
@@ -72,7 +73,7 @@ Whether you want to recover mistakenly dismissed notifications, keep a persisten
 - 🧪 **Built-in Developer & Test Suite**
   - Interactive test dialog to send custom push notifications.
   - On-demand active notification import test with duplicate count feedback.
-  - Batch generator to populate 500 test messages to test threshold notifications and scrolling performance.
+  - Batch generator to populate 1000 test messages to test threshold notifications and scrolling performance.
   - Manual trigger button for the history warning notification.
 
 - 🔒 **100% Private & Offline**
@@ -89,8 +90,8 @@ The app uses a hybrid architecture combining Flutter's responsive UI with native
 graph TD
     A[Incoming Android Notification] -->|Intercepted by| B[NotificationListenerService]
     B -->|Persists payload| C[(SQLite notifications.db)]
-    B -->|Check threshold >= 500| D[HistoryAlertManager]
-    D -.->|Triggers alert if >= 500| E[System Alert Notification]
+    B -->|Check threshold >= 1000| D[HistoryAlertManager]
+    D -.->|Triggers alert if >= 1000| E[System Alert Notification]
     B -->|Local Broadcast / MethodChannel| F[MainActivity]
     F -->|Event Stream| G[NotificationService Dart]
     G -->|Reactive UI updates| H[HomeScreen Material 3 UI]
@@ -112,7 +113,7 @@ graph TD
 - **Native Android Layer (`android/app/src/main/kotlin/`)**:
   - `NotificationListener` (`NotificationListener.kt`): Extends `NotificationListenerService` to capture status bar notifications, maintain active instance binding, and import active notifications with duplicate detection.
   - `NotificationDatabaseHelper` (`NotificationDatabaseHelper.kt`): Manages the local SQLite database (`notifications.db`), indexed queries, updates, and duplicate validation (`isNotificationAlreadySaved`).
-  - `HistoryAlertManager` (`HistoryAlertManager.kt`): Manages warning threshold logic (500+ messages), notification channels, and deep-link routing.
+  - `HistoryAlertManager` (`HistoryAlertManager.kt`): Manages warning threshold logic (1000+ messages), notification channels, and deep-link routing.
   - `BootReceiver` (`BootReceiver.kt`): Listens for `ACTION_BOOT_COMPLETED` and `ACTION_MY_PACKAGE_REPLACED` to ensure background readiness across reboots and app updates.
   - `MainActivity` (`MainActivity.kt`): Handles platform channel method calls, intent extras (`open_tab`), permission checks, and background listener rebind management (`rebindNotificationListener`).
 
@@ -203,8 +204,8 @@ The app includes a built-in diagnostic and testing suite accessible via the Floa
 
 1. **Send Test Notification**: Post a custom title and body to verify listener capture and database storage.
 2. **Import Active Notifications ("Hae ilmoitusviestit")**: Pull all unread notifications currently sitting in the device status bar into the inbox, automatically skipping duplicates.
-3. **500 History Alert Trigger**: Manually fire the threshold alert to verify system notification channels and deep-linking to the History tab.
-4. **Batch Generator**: Insert 500 test messages in one operation to stress-test UI responsiveness, database indexing, and warning banners.
+3. **1000 History Alert Trigger**: Manually fire the threshold alert to verify system notification channels and deep-linking to the History tab.
+4. **Batch Generator**: Insert 1000 test messages in one operation to stress-test UI responsiveness, database indexing, and warning banners.
 
 ---
 

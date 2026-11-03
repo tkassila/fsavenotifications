@@ -25,7 +25,7 @@ class NotificationService {
   }
 
   Future<dynamic> _handleMethodCall(MethodCall call) async {
-    if (call.method == 'onNewNotification') {
+    if (call.method == 'onNewNotification' || call.method == 'onNotificationRemoved') {
       _newNotificationStreamController.add(null);
     } else if (call.method == 'openTab') {
       final tab = (call.arguments as Map?)?['tab'] as String?;
@@ -228,7 +228,7 @@ class NotificationService {
     }
   }
 
-  /// Laukaisee manuaalisesti 500+ historiaviestin varoitusilmoituksen
+  /// Laukaisee manuaalisesti 1000+ historiaviestin varoitusilmoituksen
   Future<bool> triggerHistoryAlert() async {
     try {
       final bool? success = await _channel.invokeMethod('triggerHistoryAlert');
@@ -240,9 +240,9 @@ class NotificationService {
     }
   }
 
-  /// Lisää testisovelluksen historiaviestejä (kynnystestaus 500 viestiä varten)
+  /// Lisää testisovelluksen historiaviestejä (kynnystestaus 1000 viestiä varten)
   Future<int> insertBatchTestMessages({
-    int count = 500,
+    int count = 1000,
     bool markAsRead = true,
   }) async {
     try {

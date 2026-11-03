@@ -113,18 +113,6 @@ class _HomeScreenState extends State<HomeScreen>
         _unreadNotifications.removeWhere((n) => n.id == item.id);
       });
       _loadNotifications();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(_strings.markedOneReadSnack(item.title.isNotEmpty ? item.title : item.appName)),
-            duration: const Duration(seconds: 2),
-            action: SnackBarAction(
-              label: 'OK',
-              onPressed: () {},
-            ),
-          ),
-        );
-      }
     }
   }
 
@@ -332,7 +320,7 @@ class _HomeScreenState extends State<HomeScreen>
                   onPressed: () async {
                     Navigator.pop(ctx);
                     final inserted = await _notificationService.insertBatchTestMessages(
-                      count: 500,
+                      count: 1000,
                       markAsRead: true,
                     );
                     await _loadNotifications();
@@ -763,7 +751,7 @@ class _HomeScreenState extends State<HomeScreen>
     }).toList();
 
     final int totalHistoryCount = readFiltered.length;
-    final bool hasTooManyHistory = totalHistoryCount >= 500;
+    final bool hasTooManyHistory = totalHistoryCount >= 1000;
 
     return Scaffold(
       appBar: AppBar(
@@ -938,7 +926,7 @@ class _HomeScreenState extends State<HomeScreen>
               ],
             ),
 
-          // Varoitusbanneri jos historiaviestejä on 500 tai enemmän
+          // Varoitusbanneri jos historiaviestejä on 1000 tai enemmän
           if (hasTooManyHistory)
             MaterialBanner(
               backgroundColor: Colors.red.shade50,

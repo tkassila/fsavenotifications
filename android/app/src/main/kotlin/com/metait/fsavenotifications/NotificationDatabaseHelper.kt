@@ -214,6 +214,17 @@ class NotificationDatabaseHelper private constructor(context: Context) :
     }
 
     @Synchronized
+    fun markAsReadByKey(key: String): Int {
+        if (key.isBlank()) return 0
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_IS_READ, 1)
+            put(COLUMN_READ_AT, System.currentTimeMillis())
+        }
+        return db.update(TABLE_NAME, values, "$COLUMN_KEY = ? AND $COLUMN_IS_READ = 0", arrayOf(key))
+    }
+
+    @Synchronized
     fun markAllAsRead(): Int {
         val db = writableDatabase
         val values = ContentValues().apply {

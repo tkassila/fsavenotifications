@@ -2,6 +2,7 @@ package com.metait.fsavenotifications
 
 import android.app.Notification
 import android.content.Intent
+import android.os.Build
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
@@ -71,6 +72,44 @@ class NotificationListener : NotificationListenerService() {
         }
     }
 
+    override fun onNotificationRemoved(sbn: StatusBarNotification?, rankingMap: RankingMap?, reason: Int) {
+        super.onNotificationRemoved(sbn, rankingMap, reason)
+        if (sbn != null) {
+            handleNotificationRemoved(sbn, reason)
+        }
+    }
+
+    override fun onNotificationRemoved(sbn: StatusBarNotification?) {
+        super.onNotificationRemoved(sbn)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O && sbn != null) {
+            handleNotificationRemoved(sbn, -1)
+        }
+    }
+
+    private fun handleNotificationRemoved(sbn: StatusBarNotification, reason: Int) {
+        val packageName = sbn.packageName ?: return
+
+        // Älä reagoi sovelluksen omaan varoitusilmoitukseen
+        if (packageName == applicationContext.packageName && sbn.id == 9999) {
+            return
+        }
+
+        val key = sbn.key ?: "${packageName}_${sbn.id}_${sbn.postTime}"
+        if (key.isBlank()) return
+
+        try {
+            val db = NotificationDatabaseHelper.getInstance(applicationContext)
+            val affected = db.markAsReadByKey(key)
+            if (affected > 0) {
+                Log.d(TAG, "Notification marked as read on removal (reason: $reason, affected: $affected): $packageName ($key)")
+                MainActivity.notifyFlutterNotificationRemoved(key)
+                HistoryAlertManager.checkAndNotify(applicationContext)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in handleNotificationRemoved: ${e.message}", e)
+        }
+    }
+
     fun processAndSaveNotification(sbn: StatusBarNotification, isImport: Boolean): Long {
         val notification = sbn.notification ?: return -1L
         val extras = notification.extras ?: return -1L
@@ -93,7 +132,7 @@ class NotificationListener : NotificationListenerService() {
 
         val packageName = sbn.packageName ?: "unknown"
 
-        // Älä tallenna sovelluksen omaa 500-varoitusilmoitusta historiaan
+        // Älä tallenna sovelluksen omaa 1000-varoitusilmoitusta historiaan
         if (packageName == applicationContext.packageName && sbn.id == 9999) {
             return -1L
         }
@@ -144,7 +183,7 @@ class NotificationListener : NotificationListenerService() {
 
             MainActivity.notifyFlutterNewNotification(insertedId, appName, title)
 
-            // Tarkista ylittääkö historiaviestien määrä 500 kappaletta ja ilmoita tarvittaessa
+            // Tarkista ylittääkö historiaviestien määrä 1000 kappaletta ja ilmoita tarvittaessa
             HistoryAlertManager.checkAndNotify(applicationContext)
         }
 
